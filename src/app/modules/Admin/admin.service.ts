@@ -1,28 +1,33 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import { adminSearchAbleFields } from "./admin.constant";
+import { skip } from "node:test";
 
 const pirsma = new PrismaClient();
 
-const getAllFromDB = async (query: any) => {
-  const { searchTerm, ...filterData } = query;
-  const andCondition: Prisma.AdminWhereInput[] = [];
+const calculatePagination = (options: {
+  page?: number;
+  limit?: number;
+  sortOrder?: string;
+  sortBy?: string;
+}) => {
+  const page: number = Number(options?.page) || 1;
+  const limit: number = Number(options.limit) || 10;
+  const skip: number = (Number(page) - 1) * limit;
+  const sortBy: string = options?.sortBy || "createdAt";
+  const sortOrder: string = options.sortOrder || "desc";
+  return {
+    page,
+    limit,
+    skip,
+    sortBy,
+    sortOrder,
+  };
+};
 
-  /* 
-    [
-        {
-          name: {
-            contains: query.searchTerm,
-            mode: "insensitive",
-          },
-        },
-        {
-          email: {
-            contains: query.searchTerm,
-            mode: "insensitive",
-          },
-        },
-    ]
-*/
-  const adminSearchAbleFields = ["name", "email"];
+const getAllFromDB = async (query: any, options: any) => {
+  const { searchTerm, ...filterData } = query;
+  const { page, limit, sortBy, sortOrder, skip } = calculatePagination(options);
+  const andCondition: Prisma.AdminWhereInput[] = [];
 
   if (query.searchTerm) {
     andCondition.push({
@@ -53,6 +58,14 @@ const getAllFromDB = async (query: any) => {
 
   const result = await pirsma.admin.findMany({
     where: whereConditions,
+    skip: skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder
+        ? {
+            [sortBy]: sortOrder,
+          }
+        : { createdAt: "desc" },
   });
 
   return result;
