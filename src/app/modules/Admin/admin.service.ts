@@ -1,13 +1,13 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { constants } from "buffer";
 
 const pirsma = new PrismaClient();
 
 const getAllFromDB = async (query: any) => {
+  const { searchTerm, ...filterData } = query;
   const andCondition: Prisma.AdminWhereInput[] = [];
-  if (query.searchTerm) {
-    andCondition.push({
-      OR: [
+
+  /* 
+    [
         {
           name: {
             contains: query.searchTerm,
@@ -20,7 +20,32 @@ const getAllFromDB = async (query: any) => {
             mode: "insensitive",
           },
         },
-      ],
+    ]
+*/
+  const adminSearchAbleFields = ["name", "email"];
+
+  if (query.searchTerm) {
+    andCondition.push({
+      OR: adminSearchAbleFields.map((field) => {
+        return {
+          [field]: {
+            contains: query.searchTerm,
+            mode: "insensitive",
+          },
+        };
+      }),
+    });
+  }
+  //   console.dir(andCondition, { depth: Infinity });
+
+  if (Object.keys(filterData).length > 0) {
+    // Object.keys(filterData).map(key=>())
+    andCondition.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: filterData[key],
+        },
+      })),
     });
   }
 
