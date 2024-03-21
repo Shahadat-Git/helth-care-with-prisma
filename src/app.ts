@@ -1,8 +1,16 @@
-import express, { Application, Request, Response } from "express";
+import express, {
+  Application,
+  NextFunction,
+  Request,
+  Response,
+  request,
+  response,
+} from "express";
 
 import cosrs from "cors";
-import { userRoutes } from "./app/modules/User/user.routes";
-import { adminRoutes } from "./app/modules/Admin/admin.routes";
+import router from "./app/routes";
+import httpStatus from "http-status";
+import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 
 const app: Application = express();
 express;
@@ -16,7 +24,21 @@ app.get("/", (req: Request, res: Response) => {
   res.send({ server: "server is running" });
 });
 
-app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/user", adminRoutes);
+// all routes
+app.use("/api/v1", router);
+
+// global error handler
+app.use(globalErrorHandler);
+
+// no routes found
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.status(httpStatus.NOT_FOUND).json({
+    status: false,
+    message: "API NOT FOUND",
+    error: {
+      path: req.originalUrl
+    }
+  });
+});
 
 export default app;
