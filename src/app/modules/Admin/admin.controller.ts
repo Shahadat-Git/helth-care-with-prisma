@@ -1,12 +1,15 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { adminServices } from "./admin.service";
 import pick from "../../../shared/pick";
 import { adminFilterableFilds } from "./admin.constant";
 import sendResponse from "../../../shared/sendResponse";
 import httpStatus from "http-status";
+import catchAsync from "../../../shared/catchAsync";
 
-const getAll = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+
+
+const getAll = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const filters = pick(req.query, adminFilterableFilds);
     const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
     const result = await adminServices.getAllFromDB(filters, options);
@@ -17,13 +20,11 @@ const getAll = async (req: Request, res: Response, next: NextFunction) => {
       meta: result.meta,
       data: result.data,
     });
-  } catch (error: any) {
-    next(error);
   }
-};
+);
 
-const getSingle = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+const getSingle = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const id = req?.params?.id;
     const result = await adminServices.getSingleFromDb(id);
     sendResponse(res, {
@@ -32,13 +33,11 @@ const getSingle = async (req: Request, res: Response, next: NextFunction) => {
       message: "Single admin data fatched ",
       data: result,
     });
-  } catch (error: any) {
-    next(error);
   }
-};
+);
 
-const updateSingle = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+const updateSingle = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const id = req?.params?.id;
     const data = req?.body;
     const result = await adminServices.updateIntoDB(id, data);
@@ -48,13 +47,11 @@ const updateSingle = async (req: Request, res: Response, next: NextFunction) => 
       message: "Admin data updated ",
       data: result,
     });
-  } catch (error: any) {
-    next(error);
   }
-};
+);
 
-const deleteSingle = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+const deleteSingle = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const id = req?.params?.id;
     const result = await adminServices.deleteIntoDB(id);
     sendResponse(res, {
@@ -63,13 +60,11 @@ const deleteSingle = async (req: Request, res: Response, next: NextFunction) => 
       message: "Admin data deleted ",
       data: result,
     });
-  } catch (error: any) {
-    next(error);
   }
-};
+);
 
-const softDelete = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+const softDelete = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const id = req?.params?.id;
     const result = await adminServices.softDeleteIntoDB(id);
     sendResponse(res, {
@@ -78,10 +73,8 @@ const softDelete = async (req: Request, res: Response, next: NextFunction) => {
       message: "Admin data deleted ",
       data: result,
     });
-  } catch (error: any) {
-    next(error);
   }
-};
+);
 
 export const adminControllers = {
   getAll,
