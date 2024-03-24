@@ -1,8 +1,10 @@
-import  {  Router } from "express";
+import { Router } from "express";
 import { userController } from "./user.controller";
 
-const router = Router()
+import auth from "../../middlewares/auth";
 
-router.post('/', userController.createAdmin)
+const router = Router();
+
+router.post("/", auth("ADMIN"), userController.createAdmin);
 
 export const userRoutes = router;

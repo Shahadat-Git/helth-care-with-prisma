@@ -4,7 +4,7 @@ const generateToken = (
     email: string;
     role: string;
   },
-  secret: string,
+  secret: Secret,
   expiresIn: string
 ) => {
   const token = jwt.sign(
