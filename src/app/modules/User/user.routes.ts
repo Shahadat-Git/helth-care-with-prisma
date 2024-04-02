@@ -8,9 +8,8 @@ import validateRequest from "../../middlewares/validateRequest";
 
 const router = Router();
 
-
 router.get(
-  '/',
+  "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   userController.getAllFromDB
 );
@@ -44,10 +43,26 @@ router.post(
 );
 
 router.patch(
-  '/:id/status',
+  "/:id/status",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validateRequest(userValidation.updateStatus),
   userController.changeProfileStatus
-)
+);
+
+router.get(
+  "/me",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PATIENT, UserRole.DOCTOR),
+  userController.getMyProfile
+);
+
+router.patch(
+  "/update-my-profile",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PATIENT, UserRole.DOCTOR),
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    return userController.updateMyProfile(req, res, next);
+  }
+);
 
 export const userRoutes = router;
