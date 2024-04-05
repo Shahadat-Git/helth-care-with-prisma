@@ -12,6 +12,8 @@ const getAllFromDB = async (
     const { limit, page, skip } = paginationHelper.calculatePagination(options);
     const { searchTerm, specialties, ...filterData } = filters;
 
+    console.log(specialties)
+
     const andConditions: Prisma.DoctorWhereInput[] = [];
 
     if (searchTerm) {
