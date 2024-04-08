@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import httpStatus from "http-status";
-import { ScheduleService } from "./schedule.service";
+import { ScheduleService } from "./schedule.sevice";
 import pick from "../../../shared/pick";
 import { TAuthUser } from "../../interfaces/common";
+
 
 const inserIntoDB = catchAsync(async (req: Request, res: Response) => {
     const result = await ScheduleService.inserIntoDB(req.body);
@@ -17,23 +18,47 @@ const inserIntoDB = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-const getAllFromDB = catchAsync(async (req: Request &{user?:TAuthUser}, res: Response) => {
-
-    const filters = pick(req.query, ["startDateTime","endDateTime"]);
+const getAllFromDB = catchAsync(async (req: Request & { user?: TAuthUser }, res: Response) => {
+    const filters = pick(req.query, ['startDate', 'endDate']);
     const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
-    const user = req?.user
-    const result = await ScheduleService.getAllFromDB(filters, options,user as TAuthUser);
+
+    const user = req.user;
+    const result = await ScheduleService.getAllFromDB(filters, options, user as TAuthUser);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Schedules fetched successfully!",
+        message: "Schedule fetched successfully!",
         data: result
+    });
+});
+
+const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await ScheduleService.getByIdFromDB(id);
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Schedule retrieval successfully',
+        data: result,
+    });
+});
+
+const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await ScheduleService.deleteFromDB(id);
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Schedule deleted successfully',
+        data: result,
     });
 });
 
 
 export const ScheduleController = {
     inserIntoDB,
-    getAllFromDB
+    getAllFromDB,
+    getByIdFromDB,
+    deleteFromDB
 };
