@@ -17,4 +17,14 @@ export const config = {
   reset_password_link: process.env.RESET_PASSWORD_lINK,
   email: process.env.EMAIL,
   app_password: process.env.APP_PASSWORD,
+  ssl:{
+    store_id : process.env.STORE_ID,
+    store_pass : process.env.STORE_PASSWORD,
+    success_url : process.env.SUCCESS_URL,
+    cancel_url : process.env.CANCEL_URL,
+    fail_url : process.env.FAIL_URL,
+    ssl_payment_api: process.env.SSL_PAYMENT_URL,
+    ssl_validation_api: process.env.SSL_VALIDATION_API
+    
+  }
 };
