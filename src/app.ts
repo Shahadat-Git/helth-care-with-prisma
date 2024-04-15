@@ -11,7 +11,9 @@ import cosrs from "cors";
 import router from "./app/routes";
 import httpStatus from "http-status";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
-import cookieParser from 'cookie-parser'
+import cookieParser from "cookie-parser";
+import { AppointmentService } from "./app/modules/Appointment/appointment.service";
+import cron from "node-cron";
 
 const app: Application = express();
 express;
@@ -21,6 +23,10 @@ app.use(cookieParser());
 // parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+cron.schedule("* * * * *", () => {
+  AppointmentService.cancelUnpaidAppointments();
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send({ server: "server is running" });
@@ -38,8 +44,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     status: false,
     message: "API NOT FOUND",
     error: {
-      path: req.originalUrl
-    }
+      path: req.originalUrl,
+    },
   });
 });
 
